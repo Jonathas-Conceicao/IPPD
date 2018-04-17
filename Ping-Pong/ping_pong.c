@@ -30,5 +30,7 @@ int main (void) {
     }
   }
   MPI_Finalize();
+
+  free(ball);
   return 0;
 }
