@@ -1,8 +1,8 @@
-/*****************************************************/
-/* Nome: Jonathas Conceição                          */
-/* Github: Jonathas-Conceicao                        */
-/* Make a token cycle through a ring of  MPI process */
-/*****************************************************/
+/****************************************************************/
+/* Nome: Jonathas Conceição                                     */
+/* Github: Jonathas-Conceicao                                   */
+/* Make a token be passed N times through a ring of MPI process */
+/****************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
