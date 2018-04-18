@@ -15,14 +15,21 @@ typedef struct cList_ {
 	struct cList_ *prev;
 } cList_t;
 
-cList_t *newcListNode(int key, )
+cList_t *newcListNode(int key, cList_t *next, cList_t *prev) {
+	cList_t *node;
+	node = malloc(sizeof(cList_t));
+	assert(node);
+	node->key = key;
+	node->next = next;
+	node->prev = prev;
+	return node;
+}
 
-cList_t *newcList(int size) {
+cList_t *newcListFromArray(int [] array, int size) {
 	assert(size >= 1);
 	cList_t *head;
-	
+	head = newcListNode(array[0],
 	for (int i = 0; i < size; ++i) {
-
 	}
 }
 
