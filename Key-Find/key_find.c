@@ -9,6 +9,8 @@
 #include <mpi.h>
 #include <assert.h>
 
+#define SIZE 1000000
+
 typedef struct cList_ {
 	int key;
 	struct cList_ *next;
@@ -57,17 +59,17 @@ void printAllcList(cList_t *head) {
 }
 
 int main (void) {
-	int keys[1000];
-	for (int i = 0; i < 1000; ++i) {
+	int keys[SIZE];
+	for (int i = 0; i < SIZE; ++i) {
 		keys[i] = i;
 	}
 	char done = 0;
-	int target = 313;
+  int target = 313;
 	int my_rank;
 	int comm_sz;
 	MPI_Request req;   // Required variable for non-blocking calls
 
-	cList_t *head = initcList(keys, 1000);
+	cList_t *head = initcList(keys, SIZE);
 	cList_t *curr = head;
 
 	MPI_Init(NULL, NULL);
@@ -84,27 +86,10 @@ int main (void) {
 		} else {			
 			/* printf("Process %i fund %i, will keep looking!\n", my_rank, curr->key); */
 			curr = (my_rank) ? curr->next : curr->prev; // Process search in different directions
-			MPI_Irecv(&done, 1, MPI_CHAR, other_process, 0, MPI_COMM_WORLD, &req);
-		}
+  		MPI_Irecv(&done, 1, MPI_CHAR, other_process, 0, MPI_COMM_WORLD, &req);
+  	}
 	} while(!done);
-	
-	/* do { // I if were you, I would not try to understand this. */
-	/* 	MPI_Recv(&token, 1, MPI_CHAR, prev_process, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); */
-	/* 	if (token > 0) { */
-	/* 		token -= 1; */
-	/* 		printf("I, thread %i, am passing the token number %i.\n", my_rank, token); */
-	/* 		MPI_Send(&token, 1, MPI_CHAR, next_process, 0, MPI_COMM_WORLD); */
-	/* 	} else if (token == 0) { */
-	/* 		token = -my_rank -1; */
-	/* 		MPI_Send(&token, 1, MPI_CHAR, next_process, 0, MPI_COMM_WORLD); */
-	/* 		token = 0; */
-	/* 	} else if (token == (-my_rank - 1)) { */
-	/* 		token = 0; */
-	/* 	} else { */
-	/* 		MPI_Send(&token, 1, MPI_CHAR, next_process, 0, MPI_COMM_WORLD); */
-	/* 		token = 0; */
-	/* 	} */
-	/* } while (token); */
+
 	MPI_Finalize();
 
 	return 0;
