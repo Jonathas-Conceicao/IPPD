@@ -68,6 +68,7 @@ int main (void) {
 	int my_rank;
 	int comm_sz;
 	MPI_Request req;   // Required variable for non-blocking calls
+	MPI_Status stat;
 
 	cList_t *head = initcList(keys, SIZE);
 	cList_t *curr = head;
@@ -81,14 +82,15 @@ int main (void) {
 	do {
 		if (curr->key == target) { // If the key was found
 			done = 1;
-			printf("I, process %i, found the key!\n", my_rank);
+			printf("I, process %i, found the key, sedding signal to %i so it can stop working!\n", my_rank, other_process);
 			MPI_Send(&done, 1, MPI_CHAR, other_process, 0, MPI_COMM_WORLD);
-		} else {			
-			/* printf("Process %i fund %i, will keep looking!\n", my_rank, curr->key); */
+		} else {
 			curr = (my_rank) ? curr->next : curr->prev; // Process search in different directions
   		MPI_Irecv(&done, 1, MPI_CHAR, other_process, 0, MPI_COMM_WORLD, &req);
   	}
+		
 	} while(!done);
+	MPI_Wait(&req, &stat);
 
 	MPI_Finalize();
 
