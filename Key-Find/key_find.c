@@ -76,15 +76,15 @@ int main (void) {
 	assert(comm_sz == 2);
 
 	int other_process = (my_rank + 1) % comm_sz;
-	MPI_Irecv(&done, 1, MPI_CHAR, other_process, 0, MPI_COMM_WORLD, &req);
+	MPI_Irecv(NULL, 0, MPI_BYTE, other_process, 0, MPI_COMM_WORLD, &req); // Set non-blocking recive of empty message.
 	do {
 		if (curr->key == target) { // If the key was found
 			done = 1;
 			printf("I, process %i, found the key, sedding signal to %i so it can stop working!\n", my_rank, other_process);
-			MPI_Send(&done, 1, MPI_CHAR, other_process, 0, MPI_COMM_WORLD);
+			MPI_Send(NULL, 0, MPI_BYTE, other_process, 0, MPI_COMM_WORLD);
 		} else {
 			curr = (my_rank) ? curr->prev : curr->next; // Process search in different directions
-			MPI_Test(&req, (int *) &done, MPI_STATUS_IGNORE);
+			MPI_Test(&req, (int *) &done, MPI_STATUS_IGNORE); // Checks if message was recived.
 		}
 	} while(!done);
 
