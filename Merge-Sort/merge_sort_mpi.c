@@ -21,7 +21,7 @@ char *array_to_string(int *array, int size);
 void merge_stack();
 void merge_split(int *array, int split_pos, int size);
 void merge_sort(merge_mpi_data *data);
-void merge_generate_random_array(merge_mpi_data *data, int seed, int size);
+void merge_generate_random_array(merge_mpi_data *data, int size, int seed);
 merge_mpi_data *merge_init();
 void merge_finallize();
 void swap(int *a, int *b);
@@ -29,7 +29,7 @@ void swap(int *a, int *b);
 int main (void) {
 	merge_mpi_data *data;
 	data = merge_init();
-	merge_generate_random_array(data, SEED, SIZE);
+	merge_generate_random_array(data, SIZE, SEED);
 	merge_print_array(data);
 	merge_sort(data);
 	merge_print_array(data);
@@ -53,7 +53,7 @@ void merge_finallize() {
 	return;
 }
 
-void merge_generate_random_array(merge_mpi_data *data, int seed, int size) {
+void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 	srand(seed);
 	data->array = malloc(sizeof(int) * size);
 	assert(data->array);
