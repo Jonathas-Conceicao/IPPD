@@ -5,7 +5,7 @@
 /* #include <mpi.h> */
 
 #define SEED 313
-#define SIZE 8
+#define SIZE 100
 
 typedef struct merge_mpi_data_ {
 	int my_rank;
@@ -15,7 +15,6 @@ typedef struct merge_mpi_data_ {
 } merge_mpi_data;
 
 void merge_print_array(merge_mpi_data *data);
-char *array_to_string(int *array, int size);
 int  *merge_stack(int *left, int left_size, int *right, int right_size);
 int  *merge_split(int *array, int split_pos, int size);
 void merge_sort(merge_mpi_data *data);
@@ -58,7 +57,7 @@ void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 	assert(data->array);
 	data->size = size;
 	for (int i = 0; i < size; ++i) {
-		data->array[i] = rand() % 1000; // TODO Allow bigger values
+		data->array[i] = rand() % 1000; // TODO allow bigger numbers
 	}
 	return;
 }
@@ -108,24 +107,15 @@ int *merge_stack(int *left, int left_size, int *right, int right_size) {
 	return new_array;
 }
 
-char *array_to_string(int *array, int size) {
-	char *s = calloc(size, sizeof(int));
-	assert(s);
-	sprintf(s, "[");
-	for (int i = 0; i < size-1; ++i) {
-		sprintf(s, "%s%i, ", s, array[i]);
-	}
-	sprintf(s, "%s%i]", s, array[size-1]);
-	return s;
-}
-
 void merge_print_array(merge_mpi_data *data) {
 	/* if (data->my_rank != 0) */
 	/* 	return; */
 	printf("Full array:\n");
-	char *s = NULL;
-	s = array_to_string(data->array, data->size);
-	printf("%s\n", s);
-	free(s);
+  printf("[");
+	int i;
+	for (i = 0; i < data->size - 1; ++i) {
+		printf("%i, ", data->array[i]);
+	}
+	printf( "%i]\n", data->array[data->size - 1]);
 	return;
 }
