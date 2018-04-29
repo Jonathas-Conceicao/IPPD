@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-/* #include <mpi.h> */
+#include <mpi.h>
 
 #define SEED 313
 #define SIZE 8
@@ -17,8 +17,8 @@ typedef struct merge_mpi_data_ {
 void merge_print_array(merge_mpi_data *data);
 char *array_to_string(int *array, int size);
 int  *merge_stack(int *left, int left_size, int *right, int right_size);
-int  *merge_split(int *array, int split_pos, int size);
-void merge_sort(merge_mpi_data *data);
+int  *merge_sort(int *array, int split_pos, int size);
+void MPI_merge_sort(merge_mpi_data *data);
 void merge_generate_random_array(merge_mpi_data *data, int size, int seed);
 merge_mpi_data *merge_init();
 void merge_finallize();
@@ -28,7 +28,7 @@ int main (void) {
 	data = merge_init();
 	merge_generate_random_array(data, SIZE, SEED);
 	merge_print_array(data);
-	merge_sort(data);
+	MPI_merge_sort(data);
 	merge_print_array(data);
 	merge_finallize();
 	free(data->array);
@@ -37,18 +37,18 @@ int main (void) {
 }
 
 merge_mpi_data *merge_init() {
-	/* MPI_Init(NULL, NULL); */
+	MPI_Init(NULL, NULL);
 	merge_mpi_data *ret = malloc(sizeof(merge_mpi_data));
 	assert(ret);
-	/* MPI_Comm_size(MPI_COMM_WORLD, &ret->comm_sz); */
-	/* MPI_Comm_rank(MPI_COMM_WORLD, &ret->my_rank); */
+	MPI_Comm_size(MPI_COMM_WORLD, &ret->comm_sz);
+	MPI_Comm_rank(MPI_COMM_WORLD, &ret->my_rank);
 	ret->array = NULL;
 	ret->size = 0;
 	return ret;
 }
 
 void merge_finallize() {
-	/* MPI_Finalize(); */
+	MPI_Finalize();
 	return;
 }
 
@@ -63,19 +63,19 @@ void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 	return;
 }
 
-void merge_sort(merge_mpi_data *data) {
-  int *sorted_array = merge_split(data->array, 0, data->size);
+void MPI_merge_sort(merge_mpi_data *data) {
+  int *sorted_array = merge_sort(data->array, 0, data->size);
 	free(data->array);
 	data->array = sorted_array;
 }
 
-int *merge_split(int *array, int l_range, int h_range) {
+int *merge_sort(int *array, int l_range, int h_range) {
 	if (l_range >= h_range -1) { // Stop recursion
 		return merge_stack(array+l_range, 1, NULL, 0); // stack with NULL to avoid code repetion
 	}
 	int split_pos = (l_range+h_range)/2;
-	int *left   = merge_split(array, l_range, split_pos);
-	int *right  = merge_split(array, split_pos, h_range);
+	int *left   = merge_sort(array, l_range, split_pos);
+	int *right  = merge_sort(array, split_pos, h_range);
 	int *sorted = merge_stack(left, (split_pos - l_range), right, (h_range - split_pos) );
 	free(left );
 	free(right);
