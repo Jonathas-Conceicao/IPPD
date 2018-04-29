@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 /* #include <mpi.h> */
 
 #define SEED 313
@@ -30,6 +31,8 @@ int main (void) {
 	merge_sort(data);
 	merge_print_array(data);
 	merge_finallize();
+	free(data->array);
+	free(data);
 	return 0;
 }
 
@@ -67,15 +70,18 @@ void merge_sort(merge_mpi_data *data) {
 }
 
 int *merge_split(int *array, int l_range, int h_range) {
-	if (l_range >= h_range -1) // Stop recursion
-		return (array+l_range);
+	if (l_range >= h_range -1) { // Stop recursion
+		return merge_stack(array+l_range, 1, NULL, 0); // stack with NULL to avoid code repetion
+	}
 	int split_pos = (l_range+h_range)/2;
 	int *left   = merge_split(array, l_range, split_pos);
 	int *right  = merge_split(array, split_pos, h_range);
 	int *sorted = merge_stack(left, (split_pos - l_range), right, (h_range - split_pos) );
+	free(left );
+	free(right);
 	return sorted;
-}
 
+}
 int *merge_stack(int *left, int left_size, int *right, int right_size) {
 	int new_array_size = (left_size + right_size);
 	int *new_array = malloc(sizeof(int) * new_array_size);
@@ -103,13 +109,13 @@ int *merge_stack(int *left, int left_size, int *right, int right_size) {
 }
 
 char *array_to_string(int *array, int size) {
-	char *s = malloc( sizeof(int) * size );
+	char *s = calloc(size, sizeof(int));
 	assert(s);
 	sprintf(s, "[");
 	for (int i = 0; i < size-1; ++i) {
 		sprintf(s, "%s%i, ", s, array[i]);
 	}
-	sprintf(s, "%s%i]%c", s, array[size-1], '\0');
+	sprintf(s, "%s%i]", s, array[size-1]);
 	return s;
 }
 
@@ -117,8 +123,9 @@ void merge_print_array(merge_mpi_data *data) {
 	/* if (data->my_rank != 0) */
 	/* 	return; */
 	printf("Full array:\n");
-	char *s = array_to_string(data->array, data->size);
+	char *s = NULL;
+	s = array_to_string(data->array, data->size);
 	printf("%s\n", s);
-	/* free(s); */
+	free(s);
 	return;
 }
