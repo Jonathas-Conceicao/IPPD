@@ -5,7 +5,7 @@
 #include <mpi.h>
 
 #define SEED 313
-#define SIZE 100
+#define SIZE 1000
 
 typedef struct merge_mpi_data_ {
 	int my_rank;
@@ -63,9 +63,33 @@ void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 }
 
 void MPI_merge_sort(merge_mpi_data *data) {
-  int *sorted_array = merge_sort(data->array, 0, data->size);
+	int step = data->size / data->comm_sz;
+	if (data->my_rank == 0) { // Process 0 splits the array and sends to all other process
+		int rem  = data->size % data->comm_sz;
+		for (int i = 1; i < data->comm_sz; ++i) { // Skips 0 so it doesn't send a message to itself
+			MPI_Send(&step                           , 1   , MPI_INT, i, 0, MPI_COMM_WORLD); // Sends array's size
+			MPI_Send(&data->array[(step*i) + rem], step, MPI_INT, i, 1, MPI_COMM_WORLD); // Sends array at propper start
+		}
+		data->size = step + (data->size % data->comm_sz); // Gets one part of the array + the remain
+	} else { // Other process just recives it
+		MPI_Recv(&data->size, 1         , MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		MPI_Recv(data->array, data->size, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	}
+	int *sorted_array = merge_sort(data->array, 0, data->size);
 	free(data->array);
 	data->array = sorted_array;
+	if (data->my_rank == 0) { // Process 0 gets the sorted arrays and merger to its own
+		int *aux = malloc(sizeof(int) * data->size);
+		for (int i = 1; i < data->comm_sz; ++i) { // Skips 0 so it doesn't send a message to itself
+			MPI_Recv(aux, step, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			sorted_array = merge_stack(data->array, data->size, aux, step);
+			free(data->array);
+			data->array = sorted_array;
+			data->size += step;
+		}
+	} else { // Other process just sends away the sorted array back to process 0
+		MPI_Send(data->array, data->size, MPI_INT, 0, 0, MPI_COMM_WORLD);
+	}
 }
 
 int *merge_sort(int *array, int l_range, int h_range) {
@@ -79,8 +103,8 @@ int *merge_sort(int *array, int l_range, int h_range) {
 	free(left );
 	free(right);
 	return sorted;
-
 }
+
 int *merge_stack(int *left, int left_size, int *right, int right_size) {
 	int new_array_size = (left_size + right_size);
 	int *new_array = malloc(sizeof(int) * new_array_size);
@@ -108,8 +132,8 @@ int *merge_stack(int *left, int left_size, int *right, int right_size) {
 }
 
 void merge_print_array(merge_mpi_data *data) {
-	/* if (data->my_rank != 0) */
-	/* 	return; */
+	if (data->my_rank != 0)
+		return;
 	printf("Full array:\n");
   printf("[");
 	int i;
