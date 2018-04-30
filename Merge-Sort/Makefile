@@ -1,5 +1,7 @@
 CC=mpicc
 CFLAGS=-Wall -Wextra
+SIZE?=1000
+SEED?=313
 
 FILE = merge_sort_mpi
 
@@ -15,7 +17,7 @@ $(TARGET): $(FILE).c
 	$(CC) $(FILE).c $(CFLAGS)
 
 run: $(TARGET)
-	$(EX) -n $(PROCESS) ./$(TARGET)
+	$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED)
 
 clean:
 	rm -rf $(TARGET)

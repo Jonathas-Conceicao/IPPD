@@ -4,9 +4,6 @@
 #include <string.h>
 #include <mpi.h>
 
-#define SEED 313
-#define SIZE 1000
-
 typedef struct merge_mpi_data_ {
 	int my_rank;
 	int comm_sz;
@@ -21,14 +18,21 @@ void MPI_merge_sort(merge_mpi_data *data);
 void merge_generate_random_array(merge_mpi_data *data, int size, int seed);
 merge_mpi_data *merge_init();
 void merge_finallize();
+int sorted(int *array, int size);
 
-int main (void) {
+int main(int argc, char *argv[]) {
+	assert(argc == 3);
+	int SIZE, SEED;
+	sscanf(argv[1], "%i", &SIZE);
+	sscanf(argv[2], "%i", &SEED);
 	merge_mpi_data *data;
 	data = merge_init();
 	merge_generate_random_array(data, SIZE, SEED);
-	merge_print_array(data);
+	/* merge_print_array(data); */
 	MPI_merge_sort(data);
-	merge_print_array(data);
+	if (data->my_rank == 0) // Only process 0 will have the full array
+		printf("Array is %ssorted!\n", sorted(data->array, data->size) ? "" : "not ");
+	/* merge_print_array(data); */
 	merge_finallize();
 	free(data->array);
 	free(data);
@@ -57,7 +61,7 @@ void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 	assert(data->array);
 	data->size = size;
 	for (int i = 0; i < size; ++i) {
-		data->array[i] = rand() % 1000; // TODO allow bigger numbers
+		data->array[i] = rand();
 	}
 	return;
 }
@@ -142,4 +146,12 @@ void merge_print_array(merge_mpi_data *data) {
 	}
 	printf( "%i]\n", data->array[data->size - 1]);
 	return;
+}
+
+int sorted(int *array, int size) {
+	int result = 1;
+	for (int i = 0; i < size-1 && result; ++i) {
+		result = array[i] <= array[i+1];
+	}
+	return result;
 }
