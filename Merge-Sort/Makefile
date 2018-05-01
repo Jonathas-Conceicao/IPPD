@@ -1,5 +1,5 @@
 CC=mpicc
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -std=c11
 SIZE?=1000
 SEED?=313
 

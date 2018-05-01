@@ -9,6 +9,7 @@ typedef struct merge_mpi_data_ {
 	int comm_sz;
 	int *array;
 	int size;
+	int process_time;
 } merge_mpi_data;
 
 void merge_print_array(merge_mpi_data *data);
@@ -26,12 +27,15 @@ int main(int argc, char *argv[]) {
 	sscanf(argv[1], "%i", &SIZE);
 	sscanf(argv[2], "%i", &SEED);
 	merge_mpi_data *data;
+	double total_time;
 	data = merge_init();
 	merge_generate_random_array(data, SIZE, SEED);
 	/* merge_print_array(data); */
+	if (data->my_rank == 0)
+		total_time = MPI_Wtime();
 	MPI_merge_sort(data);
-	if (data->my_rank == 0) // Only process 0 will have the full array
-		printf("Array is %ssorted!\n", sorted(data->array, data->size) ? "" : "not ");
+	if (data->my_rank == 0)
+		printf("Array is %ssorted!\nTotal time: %lf\n", sorted(data->array, data->size) ? "" : "not ", MPI_Wtime() - total_time);
 	/* merge_print_array(data); */
 	merge_finallize();
 	free(data->array);
