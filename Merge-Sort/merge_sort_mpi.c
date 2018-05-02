@@ -164,7 +164,7 @@ void merge_print_array(merge_mpi_data *data) {
 	if (data->my_rank != 0)
 		return;
 	printf("Full array:\n");
-  printf("[");
+	printf("[");
 	int i;
 	for (i = 0; i < data->size - 1; ++i) {
 		printf("%i, ", data->array[i]);
