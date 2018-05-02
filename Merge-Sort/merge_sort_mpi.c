@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <string.h>
 #include <mpi.h>
 
 typedef struct merge_mpi_data_ {
@@ -9,8 +8,8 @@ typedef struct merge_mpi_data_ {
 	int comm_sz;
 	int *array;
 	int size;
-	double process_time;
-	double copy_time;
+	long double process_time;
+	long double copy_time;
 } merge_mpi_data;
 
 void merge_print_array(merge_mpi_data *data);
@@ -29,7 +28,7 @@ int main(int argc, char *argv[]) {
 	sscanf(argv[1], "%i", &SIZE);
 	sscanf(argv[2], "%i", &SEED);
 	merge_mpi_data *data;
-	double total_time;
+	long double total_time;
 	data = merge_init();
 	merge_generate_random_array(data, SIZE, SEED);
 	/* merge_print_array(data); */
@@ -38,7 +37,7 @@ int main(int argc, char *argv[]) {
 	MPI_merge_sort(data);
 	merge_tell_times(data);
 	if (data->my_rank == 0)
-		printf("Total time: %lf\n", MPI_Wtime() - total_time);
+		printf("%Lf\n", MPI_Wtime() - total_time);
 	/* merge_print_array(data); */
 	merge_finallize();
 	ret = sorted(data->array, data->size); // 1 if array is sorted
@@ -96,14 +95,14 @@ void MPI_merge_sort(merge_mpi_data *data) {
 	data->process_time = MPI_Wtime() - data->process_time;
 	free(data->array);
 	data->array = sorted_array;
+	long double aux_time;
 	if (data->my_rank == 0) { // Process 0 gets the sorted arrays and merger to its own
 		int *aux = malloc(sizeof(int) * data->size);
-		double aux_time;
 		for (int i = 1; i < data->comm_sz; ++i) { // Skips 0 so it doesn't send a message to itself
-			data->copy_time += MPI_Wtime();
+			aux_time = MPI_Wtime();
 			MPI_Recv(aux, step, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			data->copy_time = MPI_Wtime() - data->copy_time;
-		  aux_time = MPI_Wtime();
+			data->copy_time += MPI_Wtime() - aux_time;
+			aux_time = MPI_Wtime();
 			sorted_array = merge_stack(data->array, data->size, aux, step);
 			data->process_time += MPI_Wtime() - aux_time; 
 			free(data->array);
@@ -111,9 +110,9 @@ void MPI_merge_sort(merge_mpi_data *data) {
 			data->size += step;
 		}
 	} else { // Other process just sends away the sorted array back to process 0
-		data->copy_time += MPI_Wtime();
+		aux_time = MPI_Wtime();
 		MPI_Send(data->array, data->size, MPI_INT, 0, 0, MPI_COMM_WORLD);
-		data->copy_time = MPI_Wtime() - data->copy_time;
+		data->copy_time += MPI_Wtime() - aux_time;
 	}
 }
 
@@ -157,7 +156,7 @@ int *merge_stack(int *left, int left_size, int *right, int right_size) {
 }
 
 void merge_tell_times(merge_mpi_data *data) {
-	printf("--- Process %i ---\nProcessing Time: %lf\nCopy Time      : %lf\n", data->my_rank, data->process_time, data->copy_time);
+	printf("%i, %Lf, %Lf\n", data->my_rank, data->process_time, data->copy_time);
 }
 
 void merge_print_array(merge_mpi_data *data) {
