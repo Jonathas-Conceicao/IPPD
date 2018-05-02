@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 		total_time = MPI_Wtime();
 	MPI_merge_sort(data);
 	merge_tell_times(data);
+	MPI_Barrier(MPI_COMM_WORLD);
 	if (data->my_rank == 0)
 		printf("%Lf\n", MPI_Wtime() - total_time);
 	/* merge_print_array(data); */
