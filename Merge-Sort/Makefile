@@ -1,3 +1,4 @@
+SHELL=bash
 CC=mpicc
 CFLAGS=-Wall -Wextra -std=c11
 
@@ -23,6 +24,7 @@ test: $(TARGET)
 
 generate: $(TARGET)
 	@echo "Running $(TIMES) times for avrage"
+	@echo "$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT)"
 	@for((i=0;i<$(TIMES);i++)); do \
 		$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT) ; \
 	done
