@@ -26,7 +26,7 @@ generate: $(TARGET)
 	@for((i=0;i<$(TIMES);i++)); do \
 		$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT) ; \
 	done
-	@./generateTables.R $(PROCESS) $(TIMES) $(RESULT)
+	./generateTables.R $(PROCESS) $(TIMES) $(RESULT)
 
 clean:
 	rm -rf $(TARGET)
