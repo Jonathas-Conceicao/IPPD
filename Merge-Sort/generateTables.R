@@ -34,22 +34,18 @@ for (j in 0:(times - 1)) {
 ## names(cT) <- c("Copy Time","Process")
 names(pT) <- c("Process Time", "Copy Time", "Process")
 
-
 ## print (pT)
-## print (cT)
-## print (tT)
-
 
 pdf ("test.pdf")
-ggplot( pT, aes(x = Process, y = `Process Time`, group=Process, fill=Process)) +
-  scale_x_discrete(name = "Numero de Processos MPI") +
+ggplot( pT, aes(x = Process, y = `Process Time`, group=Process)) +
+  scale_x_continuous(name = "Numero de Processos MPI") +
   scale_y_continuous(name = "Tempo (s)") +
   labs(fill="Processos") +
   ggtitle("Tempo de Processamento") +
   geom_boxplot()
 
-ggplot( pT, aes(x = Process, y = `Copy Time`, group=Process, fill=Process)) +
-  scale_x_discrete(name = "Numero de Processos MPI") +
+ggplot( pT, aes(x = Process, y = `Copy Time`, group=Process)) +
+  scale_x_continuous(name = "Numero de Processos MPI") +
   scale_y_continuous(name = "Tempo (s)") +
   labs(fill="Processos") +
   ggtitle("Tempo de Processamento") +
