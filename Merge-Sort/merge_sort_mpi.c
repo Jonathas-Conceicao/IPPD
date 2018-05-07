@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 	merge_tell_times(data);
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (data->my_rank == 0)
-		printf("%Lf\n", MPI_Wtime() - total_time);
+		printf("%i, %Lf\n", data->comm_sz, 1000 * (MPI_Wtime() - total_time));
 	/* merge_print_array(data); */
 	merge_finallize();
 	ret = sorted(data->array, data->size); // 1 if array is sorted
@@ -157,7 +157,7 @@ int *merge_stack(int *left, int left_size, int *right, int right_size) {
 }
 
 void merge_tell_times(merge_mpi_data *data) {
-	printf("%i, %Lf, %Lf\n", data->my_rank, data->process_time, data->copy_time);
+	printf("%i, %i, %Lf, %Lf\n", data->comm_sz, data->my_rank, 1000 * data->process_time, 1000 * data->copy_time);
 }
 
 void merge_print_array(merge_mpi_data *data) {

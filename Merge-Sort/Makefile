@@ -22,15 +22,19 @@ $(TARGET): $(FILE).c
 test: $(TARGET)
 	$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED)
 
-generate: $(TARGET)
+generate: $(TARGET) cleanLog
 	@echo "Running $(TIMES) times for avrage"
-	@echo "$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT)"
 	@for((i=0;i<$(TIMES);i++)); do \
-		$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT) ; \
+		for((j=1;j<$(PROCESS)+1;j++)); do \
+		$(EX) -n $$j ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT); \
+		done; \
 	done
 	./generateTables.R $(PROCESS) $(TIMES) $(RESULT)
 
-clean:
+cleanLog:
+	rm -f $(RESULT)
+
+clean: cleanLog
 	rm -rf $(TARGET)
 	rm -rf $(RESULT)
 	killall -15 $(TARGET) || true
