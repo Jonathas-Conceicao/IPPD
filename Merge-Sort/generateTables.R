@@ -4,6 +4,8 @@ library(ggplot2)
 n     <- as.integer(commandArgs(trailingOnly=TRUE)[1])
 times <- as.integer(commandArgs(trailingOnly=TRUE)[2])
 file  <- commandArgs(trailingOnly=TRUE)[3]
+outFile <- commandArgs(trailingOnly=TRUE)[4]
+pdf(outFile)
 
 pT <- data.frame()
 tT <- data.frame()
@@ -16,9 +18,8 @@ names(pT)    <- c("Process", "ID", "Process Time", "Copy Time")
 names(total) <- c("Process", "Total Time")
 
 print (pT[order(pT$Process,pT$ID),])
-print (total)
+print (total[order(total$Process),])
 
-pdf ("Medidas.pdf")
 ggplot( pT, aes(x = Process, y = `Process Time`, group=Process)) +
   scale_x_continuous(name = "Numero de Processos MPI") +
   scale_y_continuous(name = "Tempo (ms)") +

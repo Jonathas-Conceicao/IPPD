@@ -13,23 +13,28 @@ FILE = merge_sort_mpi
 TARGET=a.out
 RESULT=times.log
 R_SCRIPT=generateTables.R
+GRAPH=Medidas
 
 all: $(TARGET)
-
-$(TARGET): $(FILE).c
-	$(CC) $(FILE).c $(CFLAGS)
 
 test: $(TARGET)
 	$(EX) -n $(PROCESS) ./$(TARGET) $(SIZE) $(SEED)
 
-generate: $(TARGET) cleanLog
+generate: $(TARGET) $(GRAPH).pdf
+
+$(TARGET): $(FILE).c
+	$(CC) $(FILE).c $(CFLAGS)
+
+$(RESULT): cleanLog
 	@echo "Running $(TIMES) times for avrage"
 	@for((i=0;i<$(TIMES);i++)); do \
 		for((j=1;j<$(PROCESS)+1;j++)); do \
-		$(EX) -n $$j ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT); \
+			$(EX) -n $$j ./$(TARGET) $(SIZE) $(SEED) >> $(RESULT); \
 		done; \
 	done
-	./generateTables.R $(PROCESS) $(TIMES) $(RESULT)
+
+$(GRAPH).pdf: $(RESULT)
+	./generateTables.R $(PROCESS) $(TIMES) $(RESULT) $(GRAPH).pdf
 
 cleanLog:
 	rm -f $(RESULT)
