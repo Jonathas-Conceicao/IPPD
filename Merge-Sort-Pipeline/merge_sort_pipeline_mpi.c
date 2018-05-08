@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <mpi.h>
 
+#define assert__(x, m) for ( ; !(x) ; assert(x) ) fprintf(stderr,"ASSERT ERROR: %s\n", m);
+
 typedef struct merge_mpi_data_ {
 	int my_rank;
 	int comm_sz;
@@ -23,7 +25,7 @@ void merge_finallize();
 int sorted(int *array, int size);
 
 int main(int argc, char *argv[]) {
-	assert(argc == 3);
+	assert__(argc == 3, "ASSERT ERROR: Invalid number of arguments!\nExpected array size and random seed as arg 1 and 2.");
 	int SIZE, SEED, ret;
 	sscanf(argv[1], "%i", &SIZE);
 	sscanf(argv[2], "%i", &SEED);
@@ -50,9 +52,10 @@ int main(int argc, char *argv[]) {
 merge_mpi_data *merge_init() {
 	MPI_Init(NULL, NULL);
 	merge_mpi_data *ret = malloc(sizeof(merge_mpi_data));
-	assert(ret);
+	assert__(ret, "Failed malloc at merge_init.");
 	MPI_Comm_size(MPI_COMM_WORLD, &ret->comm_sz);
 	MPI_Comm_rank(MPI_COMM_WORLD, &ret->my_rank);
+	assert__(!(ret->comm_sz % 2), "Expected a even number of MPI process.");
 	ret->array = NULL;
 	ret->size = 0;
 	return ret;
@@ -66,7 +69,7 @@ void merge_finallize() {
 void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 	srand(seed);
 	data->array = malloc(sizeof(int) * size);
-	assert(data->array);
+	assert__(data->array, "Failed malloc at merge_generate_random_array.");
 	data->size = size;
 	for (int i = 0; i < size; ++i) {
 		data->array[i] = rand();
@@ -133,7 +136,7 @@ int *merge_sort(int *array, int l_range, int h_range) {
 int *merge_stack(int *left, int left_size, int *right, int right_size) {
 	int new_array_size = (left_size + right_size);
 	int *new_array = malloc(sizeof(int) * new_array_size);
-	assert(new_array);
+	assert__(new_array, "Falled malloc at merge_stack.");
 	for (int n_p = 0, r_p = 0, l_p = 0; n_p < new_array_size; ++n_p) {
 		if (l_p < left_size) { 
 			if (r_p < right_size) {
