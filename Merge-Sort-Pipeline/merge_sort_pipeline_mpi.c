@@ -147,30 +147,47 @@ aP_array_t *merge_split(int *array, int l_range, int h_range) {
 	return sorted;
 }
 
-int  *merge_stack(aP_array_t *array);
-/* int *merge_stack(int *left, int left_size, int *right, int right_size) { */
-	int new_array_size = (left_size + right_size);
-	int *new_array = malloc(sizeof(int) * new_array_size);
-	assert__(new_array, "Falled malloc at merge_stack.");
-	for (int n_p = 0, r_p = 0, l_p = 0; n_p < new_array_size; ++n_p) {
-		if (l_p < left_size) { 
-			if (r_p < right_size) {
-				if (left[l_p] < right[r_p]) {
+int  *merge_stack(aP_array_t *array) {
+	int new_array_size;
+	int *new_array;
+	int *left, *right;
+	int left_size, right_size;
+	for (int i = 0; i < array->size; ++i) {
+		left = array->pairs[i].left;
+		right = array->pairs[i].right;
+		left_size = array->pairs[i].l_size;
+		right_size = array->pairs[i].r_size;
+		new_array_size = (left_size + right_size);
+		new_array = malloc(sizeof(int) * new_array_size);
+		assert__(new_array, "Falled malloc at merge_stack.");
+		for (int n_p = 0, r_p = 0, l_p = 0; n_p < new_array_size; ++n_p) {
+			if (l_p < left_size) { 
+				if (r_p < right_size) {
+					if (left[l_p] < right[r_p]) {
+						new_array[n_p] = left[l_p];
+						++l_p;
+					} else {
+						new_array[n_p] = right[r_p];
+						++r_p;
+					}
+				} else {
 					new_array[n_p] = left[l_p];
 					++l_p;
-				} else {
-					new_array[n_p] = right[r_p];
-					++r_p;
 				}
 			} else {
-				new_array[n_p] = left[l_p];
-				++l_p;
+				new_array[n_p] = right[r_p];
+				++r_p;
 			}
-		} else {
-			new_array[n_p] = right[r_p];
-			++r_p;
 		}
+		free(left);
+		free(right);
 	}
+}
+
+int *merge_stack(int *left, int left_size, int *right, int right_size) {
+	
+	int new_array_size = (left_size + right_size);
+	int *new_array = malloc(sizeof(int) * new_array_size);
 	return new_array;
 }
 
