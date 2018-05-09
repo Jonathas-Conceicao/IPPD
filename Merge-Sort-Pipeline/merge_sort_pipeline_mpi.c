@@ -30,7 +30,7 @@ typedef struct ap_array_ {
 void merge_print_array(merge_mpi_data *data);
 void merge_tell_times(merge_mpi_data *data);
 int  *merge_stack(aP_array_t *array);
-aP_array_t *merge_split(int *array, int split_pos, int size);
+int  merge_split(int *array, int l_range, int h_range, aP_array_t *aP);
 void MPI_merge_sort(merge_mpi_data *data);
 void merge_generate_random_array(merge_mpi_data *data, int size, int seed);
 merge_mpi_data *merge_init();
@@ -133,18 +133,24 @@ void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 /* 	} */
 /* } */
 
-aP_array_t *merge_split(int *array, int l_range, int h_range) {
-	
+int merge_split(int *array, int l_range, int h_range, aP_array_t *aP) {
+	aP->array = realloc(sizeof(array_pair_t) (array->size + 1));
+  aP->size += 1;
 	if (l_range >= h_range -1) { // Stop recursion
-		return merge_stack(array+l_range, 1, NULL, 0); // stack with NULL to avoid code repetion
+		aP->array[aP->size - 1].left = array+l_range;
+		aP->array[aP->size - 1].size_l = 1;
+		aP->array[aP->size - 1].right = NULL;
+		aP->array[aP->size - 1].size_r = 0;
+		return aP->size - 1;
 	}
 	int split_pos = (l_range+h_range)/2;
-	int *left   = merge_split(array, l_range, split_pos);
-	int *right  = merge_split(array, split_pos, h_range);
-	int *sorted = merge_stack(left, (split_pos - l_range), right, (h_range - split_pos) );
-	free(left );
-	free(right);
-	return sorted;
+	int left = merge_split(array, l_range, split_pos, aP);
+	aP->array[aP->size -1].left   = left;
+	aP->array[aP->size -1].size_l = split_pos - l_range;
+	int right = merge_split(array, split_pos, h_range, aP);
+	aP->array[aP->size -1].right   = right;
+	aP->array[aP->size -1].size_r = h_range - split_pos;
+	return aP->size - 1;
 }
 
 int  *merge_stack(aP_array_t *array) {
@@ -155,8 +161,8 @@ int  *merge_stack(aP_array_t *array) {
 	for (int i = 0; i < array->size; ++i) {
 		left = array->pairs[i].left;
 		right = array->pairs[i].right;
-		left_size = array->pairs[i].l_size;
-		right_size = array->pairs[i].r_size;
+		left_size = array->pairs[i].size_l;
+		right_size = array->pairs[i].size_r;
 		new_array_size = (left_size + right_size);
 		new_array = malloc(sizeof(int) * new_array_size);
 		assert__(new_array, "Falled malloc at merge_stack.");
