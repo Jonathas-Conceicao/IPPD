@@ -135,7 +135,7 @@ void merge_generate_random_array(merge_mpi_data *data, int size, int seed) {
 
 int merge_split(int *array, int l_range, int h_range, aP_array_t *aP) {
 	aP->array = realloc(sizeof(array_pair_t) (array->size + 1));
-  aP->size += 1;
+	aP->size += 1;
 	if (l_range >= h_range -1) { // Stop recursion
 		aP->array[aP->size - 1].left = array+l_range;
 		aP->array[aP->size - 1].size_l = 1;
@@ -188,13 +188,6 @@ int  *merge_stack(aP_array_t *array) {
 		free(left);
 		free(right);
 	}
-}
-
-int *merge_stack(int *left, int left_size, int *right, int right_size) {
-	
-	int new_array_size = (left_size + right_size);
-	int *new_array = malloc(sizeof(int) * new_array_size);
-	return new_array;
 }
 
 void merge_tell_times(merge_mpi_data *data) {
