@@ -26,7 +26,7 @@ mas o programa teria o comportamento correto e esperado.
 Modify the trapezoidal rule so that it will correctly estimate the integral even if comm_sz doesn’t evenly divide n.
 (You can still assume that n ≥ comm sz.)
 #### Resposta
-Reposta: [3.2_exercicio.c](3.2_exercicio.c)
+Reposta: [3.2_exercicio.c](3.2_exercicio.c)  
 Exemplo: `make all test FILE=3.2_exercicio.c PROCESS=3`
 
 <!-- ### Exercício x.x -->
