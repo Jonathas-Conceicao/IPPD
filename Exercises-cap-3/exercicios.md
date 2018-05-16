@@ -1,4 +1,7 @@
-# Exercícios do livro: Introduction to Parallel Programming
+# Exercícios
+
+Exercícios do livro: _Introduction to Parallel Programming_.
+O _source code_ requiridos por algumas das questões foi encontrado [aqui](https://www.cs.usfca.edu/~peter/ipp/).
 
 ### Exercício 3.1
 #### Questão
@@ -28,6 +31,22 @@ Modify the trapezoidal rule so that it will correctly estimate the integral even
 #### Resposta
 Reposta: [3.2_exercicio.c](3.2_exercicio.c)  
 Exemplo: `make all test FILE=3.2_exercicio.c PROCESS=3`
+
+### Exercício 3.3
+#### Questão
+Determine which of the variables in the trapezoidal rule program are local and which are global.
+#### Resposta
+Como MPI é um padrão para memória distribuída,
+todos os identificadores referenciam endereços de memória que são locais ao processo.
+O MPI oferece algumas ferramentas para lidar com memória compartilhada, mas nenhuma delas é usada no programa.
+
+### Exercício 3.4
+#### Questão
+Modify the program that just prints a line of output from each process
+( mpi output.c ) so that the output is printed in process rank order: process
+0s output first, then process 1s, and so on.
+#### Resposta
+Reposta: [3.4_exercicio.c](3.4_exercicio.c)  
 
 <!-- ### Exercício x.x -->
 <!-- #### Questão -->
