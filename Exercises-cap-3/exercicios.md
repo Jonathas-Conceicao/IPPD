@@ -20,3 +20,7 @@ na mensagem sendo impressa com lixo de memória,
 ou no texto de **greeting** sendo impresso normalmente.
 Se `MAX STRING` for usado como tamanho mais caracteres seriam copiados do que é realmente necessário,
 mas o programa teria o comportamento correto e esperado.
+
+<!-- ### Exercício x.x -->
+<!-- #### Questão -->
+<!-- #### Resposta -->
