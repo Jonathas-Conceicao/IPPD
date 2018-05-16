@@ -4,7 +4,7 @@
 #### Questão
 What happens in the greetings program if, instead of strlen(greeting) + 1,
 we use strlen(greeting) for the length of the message being sent by processes 1, 2,..., comm sz−1?
-What happens if we use MAX STRING instead of strlen(greeting) + 1?
+What happens if we use MAX_STRING instead of strlen(greeting) + 1?
 Can you explain these results?
 #### Resposta
 A função `strlen` retorna o tamanho da _string_.
@@ -20,6 +20,14 @@ na mensagem sendo impressa com lixo de memória,
 ou no texto de **greeting** sendo impresso normalmente.
 Se `MAX STRING` for usado como tamanho mais caracteres seriam copiados do que é realmente necessário,
 mas o programa teria o comportamento correto e esperado.
+
+### Exercício 3.2
+#### Questão
+Modify the trapezoidal rule so that it will correctly estimate the integral even if comm_sz doesn’t evenly divide n.
+(You can still assume that n ≥ comm sz.)
+#### Resposta
+Reposta: [3.2_exercicio.c](3.2_exercicio.c)
+Exemplo: `make all test FILE=3.2_exercicio.c PROCESS=3`
 
 <!-- ### Exercício x.x -->
 <!-- #### Questão -->
