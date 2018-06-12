@@ -9,9 +9,9 @@ VALUE := 256
 
 FILE=questao3
 
-.PHONY: all compile clean run
+.PHONY: all compile clean test
 
-all: compile run
+all: compile test
 
 compile: $(FILE).out
 
