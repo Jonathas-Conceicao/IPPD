@@ -7,9 +7,12 @@ int main (int argc, char *argv[]);
 int prime_number (int n, int id, int p);
 void timestamp ();
 
-
 int main (int argc, char *argv[]) {
 	int n;
+
+	printf ( "\n" );
+	printf ( "  Number of processors available = %d\n", omp_get_num_procs ( ) );
+	printf ( "  Number of threads =              %d\n", omp_get_max_threads ( ) );
 
 	if (argc >= 2) {
 		n = atoi(argv[1]);
@@ -17,26 +20,15 @@ int main (int argc, char *argv[]) {
 		n = 262144;
 	}
 
-	#pragma omp parallel
-	{
-	prime_number ( n, id, p );
-	}
-
-	return 0;
-}
-
-int prime_number (int n, int id, int p) {
-	int i;
-	int j;
-	int prime;
-	int total;
-
-	total = 0;
-
 	printf("[");
-	for ( i = 1 + id; i <= n; i = i + p ) {
+	int prime = 1;
+	int j;
+	int i;
+# pragma omp parallel shared (n) private(i, j)
+# pragma omp for schedule(static)
+	for ( i = 1; i <= n; ++i) {
 		prime = 1;
-		for ( j = 2; j < i; j++ ) {
+		for (j = 2; j < i; j++ ) {
 			if ( ( i % j ) == 0 ) {
 				prime = 0;
 				break;
@@ -45,10 +37,10 @@ int prime_number (int n, int id, int p) {
 		if (prime) {
 			printf("%i, ", i);
 		}
-		total = total + prime;
 	}
 	printf("]\n");
-	return total;
+
+	return 0;
 }
 
 void timestamp (void) {
