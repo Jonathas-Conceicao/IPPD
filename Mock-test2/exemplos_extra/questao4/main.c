@@ -6,9 +6,8 @@
 #include <CL/cl.h>
 #define MAX_SOURCE_SIZE (0x100000)
 
-/* #define MATRIX_SIZE 10000 */
-#define MATRIX_SIZE 16 // Smaller to quick tests
-#define WORK_SIZE 64
+#define MATRIX_SIZE 1000
+#define WORK_SIZE 10
 #define RANDOM_SEED 313
 #define MAX_RAND 100
 
@@ -25,7 +24,7 @@ int main(void) {
 	A = new_random_matrix(MATRIX_SIZE, 0);
 	B = new_random_matrix(MATRIX_SIZE, 0);
 	C = new_random_matrix(MATRIX_SIZE, 1);
-	printf("Matrix generated\n");
+	printf("All matrices intitialized!\n");
 
 	/* matrix_display(A); */
 	/* matrix_display(B); */
@@ -43,24 +42,13 @@ int* new_random_matrix(int size, int empty) {
   size *= size;
 	matrix = malloc(sizeof(int) * size);
 	if (!matrix) {
-		fprintf(stderr, "Failed to allocated memory for Matrix");
+		fprintf(stderr, "Failed to allocated memory for Matrix\n");
 		exit(1);
 	}
 	if (empty) return matrix;
 #pragma omp parallel for schedule(static)
 	for(int i = 0; i < size; ++i) {
 		matrix[i] = rand() % MAX_RAND; // Rand function is thread safe
-	}
-	return matrix;
-}
-
-int* new_empty_matrix(int size) {
-	int *matrix;
-  size *= size;
-	matrix = malloc(sizeof(int) * size);
-	if (!matrix) {
-		fprintf(stderr, "Failed to allocated memory for Matrix");
-		exit(1);
 	}
 	return matrix;
 }
@@ -123,20 +111,30 @@ void matrix_mult(int *A, int *B, int *C) {
 
 	// Build the program
 	ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to build program, error: %i\n", (int) ret);
+		exit(3);
+	}
 
 	// Create the OpenCL kernel
 	cl_kernel kernel = clCreateKernel(program, "matrix_mult_kernel", &ret);
 
 	// Set the arguments of the kernel
+	const int size = MATRIX_SIZE;
 	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&a_mem_obj);
 	ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&b_mem_obj);
 	ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&c_mem_obj);
+	ret = clSetKernelArg(kernel, 3, sizeof(int), (void *)&size);
 		
 	// Execute the OpenCL kernel on the list
-	size_t global_item_size = MATRIX_SIZE * MATRIX_SIZE; // Process the entire lists
-	size_t local_item_size = WORK_SIZE; // Divide work items into groups of 64
-	ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, 
-															 &global_item_size, &local_item_size, 0, NULL, NULL);
+	const size_t global_item_size[2] = {MATRIX_SIZE , MATRIX_SIZE}; // Process the entire lists
+	const size_t local_item_size[2] = {WORK_SIZE, WORK_SIZE};
+	ret = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, 
+															 global_item_size, local_item_size, 0, NULL, NULL);
+	if (ret != CL_SUCCESS) {
+		fprintf(stderr, "Failed to enqueue values, error: %i\n", (int) ret);
+		exit(4);
+	}
 
 	// Read the memory buffer C on the device to the local variable C
 	ret = clEnqueueReadBuffer(command_queue, c_mem_obj, CL_TRUE, 0, 

@@ -1,5 +1,5 @@
 CC=gcc
-C_PFLAGS=-std=c11 -Wall -Wextra -fopenmp
+C_PFLAGS=-std=c11 -Wall -Wextra -Werror -fopenmp
 C_SFLAGS=-lOpenCL
 
 FILE=main.c
