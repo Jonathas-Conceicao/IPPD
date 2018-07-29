@@ -7,22 +7,27 @@
 #define MAX_SOURCE_SIZE (0x100000)
 
 
-#define MATRIX_SIZE 256
-#define WORK_SIZE 16
+#define MATRIX_SIZE 64
+#define WORK_SIZE 8   // Has to be sqrt of MATRIX_SIZE for matrix_display only
+#define RANDOM_SEED 313
+#define MAX_RAND 100
 
 /* void matrix_mult(int **A, int **B, int **C); */
+int* new_random_matrix(int size);
+int* new_empty_matrix(int size);
 void matrix_mult(int *A, int *B, int *C);
 void matrix_display(int *M);
 
 int main(void) {
-	int *A = malloc(sizeof(int)*MATRIX_SIZE);
-	int *B = malloc(sizeof(int)*MATRIX_SIZE);
-	int *C = malloc(sizeof(int)*MATRIX_SIZE);
-	for(int i = 0; i < MATRIX_SIZE; ++i) {
-		A[i] = i;
-		B[i] = MATRIX_SIZE - i;
-	}
-	
+	int *A;
+	int *B;
+	int *C;
+	srand(RANDOM_SEED);
+
+	A = new_random_matrix(MATRIX_SIZE);
+	B = new_random_matrix(MATRIX_SIZE);
+	C = new_empty_matrix(MATRIX_SIZE);
+
 	matrix_display(A);
 	matrix_display(B);
 	matrix_mult(A, B, C);
@@ -32,6 +37,29 @@ int main(void) {
 	free(B);
 	free(C);
 	return 0;
+}
+
+int* new_random_matrix(int size) {
+	int *matrix;
+	matrix = malloc(sizeof(int) * size);
+	if (!matrix) {
+		fprintf(stderr, "Failed to allocated memory for Matrix");
+		exit(1);
+	}
+	for(int i = 0; i < size; ++i) {
+		matrix[i] = rand() % MAX_RAND;
+	}
+	return matrix;
+}
+
+int* new_empty_matrix(int size) {
+	int *matrix;
+	matrix = malloc(sizeof(int) * size);
+	if (!matrix) {
+		fprintf(stderr, "Failed to allocated memory for Matrix");
+		exit(1);
+	}
+	return matrix;
 }
 
 void matrix_display(int *M) {
