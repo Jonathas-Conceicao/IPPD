@@ -2,7 +2,7 @@ CC=gcc
 C_PFLAGS=-std=c11 -Wall -Wextra
 C_SFLAGS=-lOpenCL
 
-FILE=exemplo1.c
+FILE=main.c
 KERNEL=vector_add_kernel.cl
 
 OUT=a.out

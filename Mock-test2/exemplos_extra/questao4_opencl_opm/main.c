@@ -6,7 +6,8 @@
 #include <CL/cl.h>
 #define MAX_SOURCE_SIZE (0x100000)
 
-#define MATRIX_SIZE 1000
+/* #define MATRIX_SIZE 10000 */
+#define MATRIX_SIZE 1000 // Smaller value for quicker result
 #define WORK_SIZE 10
 #define RANDOM_SEED 313
 #define MAX_RAND 100
