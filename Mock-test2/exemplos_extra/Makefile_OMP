@@ -1,0 +1,20 @@
+CC=gcc
+CC_FLAGS=-Wall -Wextra -fopenmp
+
+FILE=main
+ARG:=
+
+.PHONY: all compile test clean
+
+all: test
+
+compile: $(FILE).out
+
+$(FILE).out: $(FILE).c
+	$(CC) $(CC_FLAGS) $(FILE).c -o $(FILE).out
+
+test: compile
+	./$(FILE).out $(ARG)
+
+clean:
+	rm -f $(FILE).out
